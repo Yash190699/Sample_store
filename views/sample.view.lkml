@@ -91,7 +91,40 @@ view: sample {
   dimension: subcategory {
     type: string
     sql: ${TABLE}.`Sub-Category` ;;
+
   }
+  dimension: Days_to_ship {
+    type: number
+    sql: date_diff(${ship_date},${order_date},day) ;;
+
+  }
+  dimension: Customer_lifetime_value_segmentation {
+    type:  string
+    case: {
+      when: {
+        sql: Sum(${sales}) >= 10000;;
+        label: "High"
+      }
+      when: {
+        sql:  SUM(${sales}) >= 5000 AND SUM(${sales}) <= 9999;;
+        label: "Medium"
+      }
+      else: "Low"
+    }
+
+  }
+
+  measure: Sales_per_customer {
+    type: number
+    sql:  Sum(${sales})/Count(ditinct(${customer_id})) ;;
+  }
+
+  measure: Profit_ratio {
+    type: number
+    sql: ${profit}/${sales} ;;
+    value_format: "0.00"
+  }
+
   measure: count {
     type: count
     drill_fields: [product_name, customer_name]
